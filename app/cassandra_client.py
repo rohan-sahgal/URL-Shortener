@@ -22,14 +22,14 @@ SELECT long_resource FROM urls WHERE short_resource=%s;
 
 class Cassandra_Client:
 
-  def __init__(hosts, keyspace):
+  def __init__(self, hosts, keyspace):
     cluster = Cluster(hosts)
     self._session = cluster.connect(keyspace)
 
-  def insert(short_resource, long_resource):
+  def insert(self, short_resource, long_resource):
     self._session.execute(insert_statement, (short_resource, long_resource))
 
-  def get(short_resource):
+  def get(self, short_resource):
     rows = self._session.execute(select_statement, (short_resource))
     if len(rows) == 1:
       return rows.long_resource
