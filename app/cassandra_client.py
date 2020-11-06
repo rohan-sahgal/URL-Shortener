@@ -14,10 +14,10 @@ cluster = Cluster(execution_profiles={EXEC_PROFILE_DEFAULT: profile})
 '''
 
 insert_statement = """
-UPDATE urltable SET long_resource=%s WHERE short_resource=%s;
+UPDATE urltable SET long_resource=\"%s\" WHERE short_resource=\"%s\";
 """
 select_statement = """
-SELECT long_resource FROM urltable WHERE short_resource=%s;
+SELECT long_resource FROM urltable WHERE short_resource=\"%s\";
 """
 
 class Cassandra_Client:
@@ -27,10 +27,10 @@ class Cassandra_Client:
     self._session = cluster.connect(keyspace)
 
   def insert(self, short_resource, long_resource):
-    self._session.execute(insert_statement, (str(long_resource), str(short_resource)))
+    self._session.execute(insert_statement, (long_resource, short_resource))
 
   def get(self, short_resource):
-    rows = self._session.execute(select_statement, (str(short_resource)))
+    rows = self._session.execute(select_statement, (short_resource))
     if len(rows) == 1:
       return rows.long_resource
     return None
