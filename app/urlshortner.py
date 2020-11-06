@@ -17,7 +17,7 @@ def request_handler_put():
   if short_resource == None or long_resource == None or len(request.args) != 2:
     abort(400)
   cassandra_server.insert(short_resource, long_resource)
-  return render_template('redirect_recorded.html')
+  return render_template('./redirect_recorded.html')
 
 @app.route('/<short_resource>', methods = ['GET'])
 def request_handler_get(short_resource):

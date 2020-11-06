@@ -27,10 +27,10 @@ class Cassandra_Client:
     self._session = cluster.connect(keyspace)
 
   def insert(self, short_resource, long_resource):
-    self._session.execute(insert_statement, (short_resource, long_resource))
+    self._session.execute(insert_statement, (str(long_resource), str(short_resource)))
 
   def get(self, short_resource):
-    rows = self._session.execute(select_statement, (short_resource))
+    rows = self._session.execute(select_statement, (str(short_resource)))
     if len(rows) == 1:
       return rows.long_resource
     return None
