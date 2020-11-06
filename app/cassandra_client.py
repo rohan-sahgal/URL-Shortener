@@ -14,10 +14,10 @@ cluster = Cluster(execution_profiles={EXEC_PROFILE_DEFAULT: profile})
 '''
 
 insert_statement = """
-UPDATE resources SET long_resource=%s WHERE short_resource=%s;
+UPDATE urls SET long_resource=%s WHERE short_resource=%s;
 """
 select_statement = """
-SELECT long_resource FROM resources WHERE short_resource=%s;
+SELECT long_resource FROM urls WHERE short_resource=%s;
 """
 
 class Cassandra_Client:

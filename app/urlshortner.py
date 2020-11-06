@@ -7,7 +7,7 @@ from cassandra_client import Cassandra_Client
 
 app = Flask(__name__)
 redis_server = Redis_Client(host='redis', db=0, socket_connect_timeout=2, socket_timeout=2)
-cassandra_server = Cassandra_Client(hosts=['localhost'], keyspace='Test')
+cassandra_server = Cassandra_Client(hosts=['localhost'], keyspace='testkeyspace')
 
 
 @app.route('/', methods = ['PUT'])
