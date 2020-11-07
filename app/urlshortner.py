@@ -2,6 +2,7 @@ from flask import Flask
 from flask import request
 from flask import abort
 from flask import render_template
+from flask import redirect
 from redis_client import Redis_Client
 from cassandra_client import Cassandra_Client
 
@@ -17,13 +18,14 @@ def request_handler_put():
   if short_resource == None or long_resource == None or len(request.args) != 2:
     abort(400)
   cassandra_server.insert(short_resource, long_resource)
-  html = '''
+  html = \
+'''
 <html>
       <body>
               <h1>Got It!</h1>
       </body>
 </html>
-  '''
+'''
   return html
 
 @app.route('/<short_resource>', methods = ['GET'])
