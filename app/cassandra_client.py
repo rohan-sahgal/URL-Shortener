@@ -31,6 +31,6 @@ class Cassandra_Client:
 
   def get(self, short_resource):
     rows = self._session.execute(select_statement, (short_resource, ))
-    if len(rows) == 1:
-      return rows.long_resource
+    if rows:
+      return rows[0].long_resource
     return None

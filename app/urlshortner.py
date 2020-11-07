@@ -18,11 +18,11 @@ def request_handler_put():
     abort(400)
   cassandra_server.insert(short_resource, long_resource)
   html = '''
-  <html>
-        <body>
-                <h1>Got It!</h1>
-        </body>
-  </html>
+<html>
+      <body>
+              <h1>Got It!</h1>
+      </body>
+</html>
   '''
   return html
 
