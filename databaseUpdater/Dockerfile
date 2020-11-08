@@ -22,4 +22,4 @@ EXPOSE 80
 
 # Run python app.py when the container launches
 # This happens if no command is specified
-CMD ["python3", "urlshortner.py"]
+CMD ["python3", "database_updater.py"]
