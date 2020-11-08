@@ -4,7 +4,7 @@ services:
     # replace username/repo:tag with your name and image details
     image: georgema8/urlshortner:v1
     deploy:
-      replicas: 10
+      replicas: 5
       restart_policy:
         condition: on-failure
         #resources:
@@ -13,6 +13,21 @@ services:
            # memory: 50M
     ports:
       - "4000:80"
+    networks:
+      - webnet
+  database_updater:
+    # replace username/repo:tag with your name and image details
+    image: georgema8/database_updater:v1
+    deploy:
+      replicas: 5
+      restart_policy:
+        condition: on-failure
+        #resources:
+         # limits:
+          #  cpus: "0.1"
+           # memory: 50M
+    ports:
+      - "5000:80"
     networks:
       - webnet
   visualizer:

@@ -15,9 +15,12 @@ cassandra_server = Cassandra_Client(['127.0.0.1'], 'shortenerkeyspace')
 def request_handler_put():
   short_resource = request.args.get('short')
   long_resource = request.args.get('long')
-  if short_resource == None or long_resource == None or len(request.args) != 2:
+  if not short_resource or not long_resource or len(request.args) != 2:
     abort(400)
-  cassandra_server.insert(short_resource, long_resource)
+  redis_server.insert('urls', short_resource, long_resource)
+  redis_server.insert_list('urls_list', short_resource, long_resource)
+  if not redis_server.publish('urls_channel', 'update'):
+    cassandra_server.insert(short_resource, long_resource)
   html = \
 '''
 <html>
@@ -31,14 +34,14 @@ def request_handler_put():
 @app.route('/<short_resource>', methods = ['GET'])
 def request_handler_get(short_resource):
   long_resource = redis_server.get('urls', short_resource)
-  if long_resource != None and long_resource != '':
+  if long_resource:
     return redirect(long_resource, code=307)
   long_resource = cassandra_server.get(short_resource)
-  if long_resource != None and long_resource != '':
+  if long_resource:
     redis_server.insert('urls', short_resource, long_resource)
     return redirect(long_resource, code=307)
   abort(404)
 
+
 if __name__ == '__main__':
   app.run(host='0.0.0.0', port=80)
-
