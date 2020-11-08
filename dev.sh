@@ -1,35 +1,63 @@
 #!/bin/bash
 set -e
 
-#HOSTS="10.11.12.17 10.11.12.18 10.11.12.19 10.11.12.231 10.11.12.232"
+STACK_NAME="URLShortenerService"
 HOSTS=""
+HARRAY=()
 
 input="./nodes"
 while read -r line
 do
-    echo "$line"
+    HOSTS+="$line "
+    HARRAY+=($line)
 done < "$input"
 
-start() {
-    echo "Bringing up Docker containers..."
-    ./startCluster ${HOSTS}
+
+start-stack() {
+    echo "Building image..."
+    docker build -t georgema8/urlshortner:v1 .
+    echo "Pushing image to cassandra..."
+    docker push georgema8/urlshortner:v1
+
+    docker stack deploy -c docker-compose.yml $STACK_NAME
 }
 
-stop() {
-    echo "Stopping and removing Docker containers..."
+stop-stack() {
+    echo "TODO: Catch when the stack is not already up"
+    docker stack rm $STACK_NAME
+}
+
+start-cass() {
+    echo "Starting Cassandra..."
+    ./startCluster ${HOSTS}
+    docker exec cassandra-node cqlsh -f /tmp/schema/create_keyspace.cql
+    docker exec cassandra-node cqlsh -f /tmp/schema/create_table.cql
+}
+
+stop-cass() {
+    echo "Stopping Cassandra..."
     ./stopCluster ${HOSTS}
-    #docker stack rm 
 }
 
 start-swarm() {
-    # leave on the host node
-    # init on host node (somehow save that output of docker swarm join...)
-    echo "hello"
+    echo "Initializing swarm..."
+    docker swarm init --advertise-addr ${HARRAY[0]}
+    
+    workerJoin=`docker swarm join-token worker | grep token`
+    
+    echo "Joining swarm on worker nodes..."
+    for i in "${HARRAY[@]:1}"
+    do
+        exp "hhhhiotwwg" ssh $i $workerJoin
+    done
     # SSH leave and join on the other nodes
 }
 
-leave-swarm() {
-    ssh 10.11.12.17 "docker swarm leave --force"
+stop-swarm() {
+    for i in "${HARRAY[@]}"
+    do
+        exp "hhhhiotwwg" ssh $i "docker swarm leave --force" || true 
+    done
 }
 
 run-test() {
@@ -46,14 +74,24 @@ print_done() {
 }
 
 case "$1" in
-    start)    start; print_done ;;
-    stop)     stop; print_done ;;
-    leave-swarm) leave-swarm ;;
+    start)    start-cass; start-swarm; start-stack; print_done ;;
+    stop)     stop-swarm; stop-cass; stop-stack; print_done ;;
+    start-stack) start-stack ;;
+    stop-stack) stop-stack ;;
+    start-cass) start-cass ;;
+    stop-cass) stop-cass ;;
+    start-swarm) stop-swarm; start-swarm ;;
+    leave-swarm) stop-swarm ;;
     test)     run-test; print_done ;;
     logs)     logs ;;
     *) echo "Usage:"
        echo "  $0 start      - Start app service"
        echo "  $0 stop       - Stop all running services"
+       echo "  $0 start-stack        - Build and start docker stack"
+       echo "  $0 stop-stack         - Stop docker stack"
+       echo "  $0 start-cass         - Start cassandra on all nodes"
+       echo "  $0 stop-cass          - Stop cassandra on all nodes"
+       echo "  $0 start-swarm        - Start swarm on all nodes"
        echo "  $0 leave-swarm        - Leave swarm on all nodes"
        echo "  $0 test       - Run tests for both backend and frontend"
        echo "  $0 logs       - Tail app logs"
