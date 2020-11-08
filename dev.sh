@@ -14,9 +14,13 @@ done < "$input"
 
 
 start-stack() {
-    echo "Building image..."
+    echo "Building images..."
+    cd databaseUpdater
+    docker build -t georgema8/databaseupdater:v1 .
+    cd ..
     docker build -t georgema8/urlshortner:v1 .
-    echo "Pushing image to cassandra..."
+    echo "Pushing images to cassandra..."
+    docker push georgema8/databaseupdater:v1
     docker push georgema8/urlshortner:v1
 
     docker stack deploy -c docker-compose.yml $STACK_NAME
@@ -75,7 +79,7 @@ print_done() {
 
 case "$1" in
     start)    start-cass; start-swarm; start-stack; print_done ;;
-    stop)     stop-swarm; stop-cass; stop-stack; print_done ;;
+    stop)     stop-stack; stop-cass; stop-swarm; print_done ;;
     start-stack) start-stack ;;
     stop-stack) stop-stack ;;
     start-cass) start-cass ;;
