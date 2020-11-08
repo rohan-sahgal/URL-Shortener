@@ -4,7 +4,7 @@ services:
     # replace username/repo:tag with your name and image details
     image: georgema8/urlshortner:v1
     deploy:
-      replicas: 10
+      replicas: 5
       restart_policy:
         condition: on-failure
         #resources:
@@ -19,7 +19,7 @@ services:
     # replace username/repo:tag with your name and image details
     image: georgema8/database_updater:v1
     deploy:
-      replicas: 10
+      replicas: 5
       restart_policy:
         condition: on-failure
         #resources:
