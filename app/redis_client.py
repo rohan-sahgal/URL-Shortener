@@ -7,7 +7,7 @@ class Redis_Client:
     self._db = db
     self._socket_connect_timeout = socket_connect_timeout
     self._socket_timeout = socket_timeout
-    connect(host, db, socket_connect_timeout, socket_timeout)
+    self.connect(host, db, socket_connect_timeout, socket_timeout)
   
   def connect():
     try:
@@ -20,7 +20,7 @@ class Redis_Client:
     if self._redis_server != None:
       self._redis_server.hset(name, key, value)
     else:
-      connect(self._host, self._db, self._socket_connect_timeout, self._socket_timeout)
+      self.connect(self._host, self._db, self._socket_connect_timeout, self._socket_timeout)
       if self._redis_server != None:
         self._redis_server.hset(name, key, value)
   
@@ -28,7 +28,7 @@ class Redis_Client:
     if self._redis_server != None:
       self._redis_server.lpush(name, '{}:::{}'.format(key, value))
     else:
-      connect(self._host, self._db, self._socket_connect_timeout, self._socket_timeout)
+      self.connect(self._host, self._db, self._socket_connect_timeout, self._socket_timeout)
       if self._redis_server != None:
         self._redis_server.lpush(name, '{}:::{}'.format(key, value))
 
@@ -36,7 +36,7 @@ class Redis_Client:
     if self._redis_server != None:
       return self._redis_server.hget(name, key)
     else:
-      connect(self._host, self._db, self._socket_connect_timeout, self._socket_timeout)
+      self.connect(self._host, self._db, self._socket_connect_timeout, self._socket_timeout)
       if self._redis_server != None:
         return self._redis_server.hget(name, key)
     return None
@@ -46,7 +46,7 @@ class Redis_Client:
       self._redis_server.publish(channel, message)
       return True
     else:
-      connect(self._host, self._db, self._socket_connect_timeout, self._socket_timeout)
+      self.connect(self._host, self._db, self._socket_connect_timeout, self._socket_timeout)
       if self._redis_server != None:
         self._redis_server.publish(channel, message)
         return True
