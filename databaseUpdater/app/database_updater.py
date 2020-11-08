@@ -4,7 +4,7 @@ import redis
 from cassandra_client import Cassandra_Client
 
 redis_server = redis.Redis(host='redis', db=0, socket_connect_timeout=2, socket_timeout=2)
-cassandra_server = Cassandra_Client(['127.0.0.1'], 'shortenerkeyspace')
+cassandra_server = Cassandra_Client(['10.11.12.17'], 'urlshortner')
 
 r_sub = redis_server.pubsub()
 r_sub.subscribe('urls_channel')

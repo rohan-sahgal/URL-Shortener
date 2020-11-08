@@ -1,10 +1,10 @@
 from cassandra.cluster import Cluster
 
 insert_statement = """
-UPDATE urltable SET long_resource=%s WHERE short_resource=%s;
+UPDATE urls SET long_resource=%s WHERE short_resource=%s;
 """
 select_statement = """
-SELECT long_resource FROM urltable WHERE short_resource=%s;
+SELECT long_resource FROM urls WHERE short_resource=%s;
 """
 
 
