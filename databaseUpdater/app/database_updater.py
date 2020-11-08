@@ -21,5 +21,5 @@ while (True):
         try:
           cassandra_server.insert(short_long[0], short_long[1])
         except Exception as e:
-          redis_server.lpush('urls_list', '{}:::{}'.format(key, value))
+          redis_server.lpush('urls_list', '{}:::{}'.format(short_long[0], short_long[1]))
           redis_server.publish('urls_channel', 'update')
