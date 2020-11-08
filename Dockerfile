@@ -17,11 +17,11 @@ ADD ./app /app
 # RUN during image build
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
-# Make port 5000 available to the world outside this container
-EXPOSE 5000
+# Make port 80 available to the world outside this container
+EXPOSE 80
 
 # Define environment variable
-ENV NAME World
+ENV FLASK_APP=urlshortner.py
 
 # Run python app.py when the container launches
 # This happens if no command is specified

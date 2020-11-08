@@ -1,0 +1,45 @@
+version: "3.8"
+services:
+  web:
+    # replace username/repo:tag with your name and image details
+    image: georgema8/urlshortner:v1
+    deploy:
+      replicas: 10
+      restart_policy:
+        condition: on-failure
+        #resources:
+         # limits:
+          #  cpus: "0.1"
+           # memory: 50M
+    ports:
+      - "4000:80"
+    networks:
+      - webnet
+  visualizer:
+    image: dockersamples/visualizer:stable
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - webnet
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      # replace /home/docker/data with your data directory
+      - "/home/student/repo_a2group77/volumes/redis/data:/data"
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+    command: redis-server --appendonly yes
+    networks:
+      - webnet
+networks:
+  webnet:

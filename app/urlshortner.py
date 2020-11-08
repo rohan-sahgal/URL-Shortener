@@ -8,7 +8,7 @@ from cassandra_client import Cassandra_Client
 
 app = Flask(__name__)
 redis_server = Redis_Client('redis')
-cassandra_server = Cassandra_Client(['10.11.12.17'], 'shortenerkeyspace')
+cassandra_server = Cassandra_Client(['127.0.0.1'], 'shortenerkeyspace')
 
 
 @app.route('/', methods = ['PUT'])
@@ -39,7 +39,6 @@ def request_handler_get(short_resource):
     return redirect(long_resource, code=307)
   abort(404)
 
-
-
 if __name__ == '__main__':
-  app.run(host='0.0.0.0', port=5000)
+  app.run(host='0.0.0.0', port=80)
+
