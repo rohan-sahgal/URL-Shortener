@@ -14,7 +14,6 @@ while (True):
   except Exception as e:
     continue
   if (message):
-    message = message.decode('utf-8') 
     if (message['data'] == b'update'):
       short_long = redis_server.lpop('urls_list')
       if short_long:

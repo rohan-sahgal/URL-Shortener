@@ -9,7 +9,7 @@ class Redis_Client:
     self._socket_timeout = socket_timeout
     self.connect(host, db, socket_connect_timeout, socket_timeout)
   
-  def connect(host, db, socket_connect_timeout, socket_timeout):
+  def connect(self, host, db, socket_connect_timeout, socket_timeout):
     try:
       self._redis_server = redis.Redis(host=host, db=db, socket_connect_timeout=socket_connect_timeout, socket_timeout=socket_timeout)
     except Exception as e:
