@@ -16,7 +16,7 @@ ADD ./app /app
 # Install any needed packages specified in requirements.txt
 # RUN during image build
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
-RUN apt-get update && apt-get install expect -y
+RUN apt-get update && apt-get install expect -y && apt-get install sshpass
 
 # Make port 80 available to the world outside this container
 EXPOSE 80
