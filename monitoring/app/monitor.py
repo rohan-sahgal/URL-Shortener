@@ -50,12 +50,12 @@ def check_status():
     for node in nodes:
 
         finalOutput.append("Node {} Status\n".format(n))
-        
-        cassOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "-o", "StrictHostKeyChecking=no", "student@" + node, "\'docker container ls | grep cassandra\'"], stdout=PIPE, stderr=PIPE)
+        subprocess.run(["ssh", "-o", "StrictHostKeyChecking=no", node]
+        cassOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "\'docker container ls | grep cassandra\'"], stdout=PIPE, stderr=PIPE)
         print(cassOutput, file=sys.stderr)
-        appOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "-o", "StrictHostKeyChecking=no", "student@" + node, "\'docker container ls | grep urlshortner\'"], stdout=PIPE, stderr=PIPE)
+        appOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "\'docker container ls | grep urlshortner\'"], stdout=PIPE, stderr=PIPE)
         print(appOutput, file=sys.stderr)
-        redisOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "-o", "StrictHostKeyChecking=no", "student@" + node, "\'docker container ls | grep redis:latest\'"], stdout=PIPE, stderr=PIPE)
+        redisOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "\'docker container ls | grep redis:latest\'"], stdout=PIPE, stderr=PIPE)
         print(redisOutput, file=sys.stderr)
         # Need to use .stdout
         formatter(node, cassOutput.stdout, appOutput.stdout, redisOutput.stdout, finalOutput)
