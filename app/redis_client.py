@@ -14,7 +14,7 @@ class Redis_Client:
       self._redis_server = redis.Redis(host=host, db=db, socket_connect_timeout=socket_connect_timeout, socket_timeout=socket_timeout)
     except Exception as e:
       self._redis_server = None
-      print('REDIS ERROR: Cannot connect to Redis. ' + str(e))
+      print('REDIS ERROR: Cannot connect to Redis. ' + str(e), file=sys.stderr)
 
   def insert(self, name, key, value):
     if self._redis_server != None:
