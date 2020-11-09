@@ -51,12 +51,12 @@ def check_status():
 
         finalOutput.append("Node {} Status\n".format(n))
         
-        cassOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "\'docker container ls | grep cassandra\'"], stdout=PIPE, stderr=PIPE)
-        print(cassOutput)
-        appOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "\'docker container ls | grep urlshortner\'"], stdout=PIPE, stderr=PIPE)
-        print(appOutput)
-        redisOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "\'docker container ls | grep redis:latest\'"], stdout=PIPE, stderr=PIPE)
-        print(redisOutput)
+        cassOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "-o", "\"StrictHostKeyChecking no\"", "student@" + node, "\'docker container ls | grep cassandra\'"], stdout=PIPE, stderr=PIPE)
+        print(cassOutput, file=sys.stderr)
+        appOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "-o", "\"StrictHostKeyChecking no\"", "student@" + node, "\'docker container ls | grep urlshortner\'"], stdout=PIPE, stderr=PIPE)
+        print(appOutput, file=sys.stderr)
+        redisOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "-o", "\"StrictHostKeyChecking no\"", "student@" + node, "\'docker container ls | grep redis:latest\'"], stdout=PIPE, stderr=PIPE)
+        print(redisOutput, file=sys.stderr)
         # Need to use .stdout
         formatter(node, cassOutput.stdout, appOutput.stdout, redisOutput.stdout, finalOutput)
 
@@ -67,7 +67,7 @@ def check_status():
 
 @app.route('/', methods = ['GET'])
 def request_handler():
-    return '<p>' + check_status() + '</p>'
+    return '<span style="white-space: pre-line">' + check_status() + '</span>'
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
