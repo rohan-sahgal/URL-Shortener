@@ -1,4 +1,4 @@
-from subprocess import PIPE
+from subprocess import Popen, PIPE
 import subprocess, os, time
 import socket
 import sys
@@ -51,14 +51,14 @@ def check_status():
 
         finalOutput.append("Node {} Status\n".format(n))
         subprocess.run(["exp", "hhhhiotwwg", "ssh", "-o", "StrictHostKeyChecking=no", "student@" + node, "hostname"])
-        cassOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep cassandra"], stdout=PIPE, stderr=PIPE)
+        cassOutput, _ = Popen(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep cassandra"], stdout=PIPE, stderr=PIPE).communicate()
         print(cassOutput, file=sys.stderr)
-        appOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep urlshortner"], stdout=PIPE, stderr=PIPE)
+        appOutput, _ = Popen(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep urlshortner"], stdout=PIPE, stderr=PIPE).communicate()
         print(appOutput, file=sys.stderr)
-        redisOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep redis:latest"], stdout=PIPE, stderr=PIPE)
+        redisOutput, _ = Popen(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep redis:latest"], stdout=PIPE, stderr=PIPE).communicate()
         print(redisOutput, file=sys.stderr)
         # Need to use .stdout
-        formatter(node, cassOutput.stdout, appOutput.stdout, redisOutput.stdout, finalOutput)
+        formatter(node, cassOutput.decode('utf-8'), appOutput.decode('utf-8'), redisOutput.decode('utf-8'), finalOutput)
 
         n += 1
 
