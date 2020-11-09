@@ -67,7 +67,7 @@ def check_status():
 
 @app.route('/', methods = ['GET'])
 def request_handler():
-    return '<span style="white-space: pre-line">' + check_status() + '</span>'
+    return '<meta http-equiv="refresh" content="5"><span style="white-space: pre-line">' + check_status() + '</span>'
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
