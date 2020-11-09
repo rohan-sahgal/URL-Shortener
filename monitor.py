@@ -3,9 +3,6 @@ import subprocess, os, time
 import socket
 import sys
 import re
-from flask import Flask
-
-app = Flask(__name__)
 
 
 def getCreatedAndStatus(output):
@@ -38,36 +35,28 @@ def formatter(node, cassOutput, appOutput, redisOutput, finalOutput):
         created, status = getCreatedAndStatus(redisOutput)[0], getCreatedAndStatus(redisOutput)[1]
         finalOutput.append("{:<15}{:<10}\t UP \t{:<20}\t{:<20}\n".format("Redis", node, created, status))
 
-def check_status():
-    nodes = []
 
-    with open('nodes') as config_file:
-        for line in config_file:
-            nodes.append(line.rstrip())
+nodes = []
 
-    finalOutput = ["\nURL Shortener System Status\n\n"]
-    n = 0
-    for node in nodes:
+with open('nodes') as config_file:
+    for line in config_file:
+        nodes.append(line.rstrip())
 
-        finalOutput.append("Node {} Status\n".format(n))
-        subprocess.run(["ssh", "-o", "StrictHostKeyChecking=no", "student@" + node])
-        cassOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep cassandra"], stdout=PIPE, stderr=PIPE)
-        print(cassOutput, file=sys.stderr)
-        appOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep urlshortner"], stdout=PIPE, stderr=PIPE)
-        print(appOutput, file=sys.stderr)
-        redisOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep redis:latest"], stdout=PIPE, stderr=PIPE)
-        print(redisOutput, file=sys.stderr)
-        # Need to use .stdout
-        formatter(node, cassOutput.stdout, appOutput.stdout, redisOutput.stdout, finalOutput)
+finalOutput = ["\nURL Shortener System Status\n\n"]
+n = 0
+for node in nodes:
 
-        n += 1
+    finalOutput.append("Node {} Status\n".format(n))
+    subprocess.run(["ssh", "-o", "StrictHostKeyChecking=no", "student@" + node])
+    cassOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep cassandra"], stdout=PIPE, stderr=PIPE)
+    print(cassOutput, file=sys.stderr)
+    appOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep urlshortner"], stdout=PIPE, stderr=PIPE)
+    print(appOutput, file=sys.stderr)
+    redisOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep redis:latest"], stdout=PIPE, stderr=PIPE)
+    print(redisOutput, file=sys.stderr)
+    # Need to use .stdout
+    formatter(node, cassOutput.stdout, appOutput.stdout, redisOutput.stdout, finalOutput)
 
-    return ''.join(finalOutput)
+    n += 1
 
-
-@app.route('/', methods = ['GET'])
-def request_handler():
-    return '<span style="white-space: pre-line">' + check_status() + '</span>'
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80)
+print(''.join(finalOutput))
