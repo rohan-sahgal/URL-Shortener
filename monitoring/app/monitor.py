@@ -69,5 +69,23 @@ def check_status():
 def request_handler():
     return '<meta http-equiv="refresh" content="5"><span style="white-space: pre-line">' + check_status() + '</span>'
 
+@app.route('/', methods = ['PUT'])
+def request_handler_new_host():
+    new_host = request.args.get('host')
+    with open('nodes', 'a') as myfile:
+        myfile.write(new_host + '\n')
+    return 'New node added'
+
+@app.route('/', methods = ['DELETE'])
+def request_handler_host_remove():
+    old_host = request.args.get('host')
+    with open('nodes', 'r') as f:
+    lines = f.readlines()
+    with open('nodes', 'w') as f:
+        for line in lines:
+            if line.strip('\n') != old_host:
+                f.write(line)
+    return 'Node removed'
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
