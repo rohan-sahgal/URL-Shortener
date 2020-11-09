@@ -18,10 +18,14 @@ start-stack() {
     cd databaseUpdater
     docker build -t georgema8/databaseupdater:v1 .
     cd ..
+    cd monitoring
+    docker build -t georgema8/monitorstatus:v1 .
+    cd ..
     docker build -t georgema8/urlshortner:v1 .
     echo "Pushing images to cassandra..."
     docker push georgema8/databaseupdater:v1
     docker push georgema8/urlshortner:v1
+    docker push georgema8/monitorstatus:v1
 
     docker stack deploy -c docker-compose.yml $STACK_NAME
 }

@@ -3,6 +3,10 @@ import subprocess, os, time
 import socket
 import sys
 import re
+from flask import Flask
+
+app = Flask(__name__)
+
 
 def getCreatedAndStatus(output):
     # Returns tuple of (created,status)
@@ -34,27 +38,34 @@ def formatter(node, cassOutput, appOutput, redisOutput, finalOutput):
         created, status = getCreatedAndStatus(redisOutput)[0], getCreatedAndStatus(redisOutput)[1]
         finalOutput.append("{:<15}{:<10}\t UP \t{:<20}\t{:<20}\n".format("Redis", node, created, status))
 
-nodes = []
+def check_status():
+    nodes = []
 
-with open('nodes') as config_file:
-    for line in config_file:
-        nodes.append(line.rstrip())
+    with open('nodes') as config_file:
+        for line in config_file:
+            nodes.append(line.rstrip())
 
-finalOutput = ["\nURL Shortener System Status\n\n"]
-n = 0
-for node in nodes:
+    finalOutput = ["\nURL Shortener System Status\n\n"]
+    n = 0
+    for node in nodes:
 
-    finalOutput.append("Node {} Status\n".format(n))
-    
-    cassOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", node, "docker container ls | grep cassandra"], stdout=PIPE, stderr=PIPE)
-    appOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", node, "docker container ls | grep urlshortner"], stdout=PIPE, stderr=PIPE)
-    redisOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", node, "docker container ls | grep redis:latest"], stdout=PIPE, stderr=PIPE)
+        finalOutput.append("Node {} Status\n".format(n))
+        
+        cassOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep cassandra"], stdout=PIPE, stderr=PIPE)
+        appOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep urlshortner"], stdout=PIPE, stderr=PIPE)
+        redisOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep redis:latest"], stdout=PIPE, stderr=PIPE)
 
-    # Need to use .stdout
-    formatter(node, cassOutput.stdout, appOutput.stdout, redisOutput.stdout, finalOutput)
+        # Need to use .stdout
+        formatter(node, cassOutput.stdout, appOutput.stdout, redisOutput.stdout, finalOutput)
 
-    n += 1
+        n += 1
 
-print(''.join(finalOutput))
+    return ''.join(finalOutput)
 
 
+@app.route('/', methods = ['GET'])
+def request_handler():
+    return check_status()
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=80)
