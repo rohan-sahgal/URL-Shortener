@@ -50,7 +50,7 @@ def check_status():
     for node in nodes:
 
         finalOutput.append("Node {} Status\n".format(n))
-        subprocess.run(["ssh", "-o", "StrictHostKeyChecking=no", node])
+        subprocess.run(["ssh", "-o", "StrictHostKeyChecking=no", "student@" + node])
         cassOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "\'docker container ls | grep cassandra\'"], stdout=PIPE, stderr=PIPE)
         print(cassOutput, file=sys.stderr)
         appOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "\'docker container ls | grep urlshortner\'"], stdout=PIPE, stderr=PIPE)
