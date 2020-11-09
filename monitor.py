@@ -1,0 +1,60 @@
+from subprocess import PIPE
+import subprocess, os, time
+import socket
+import sys
+import re
+
+def getCreatedAndStatus(output):
+    # Returns tuple of (created,status)
+    splitOutput = re.split(r'\s{3,}', str(output))
+
+    return (splitOutput[3], splitOutput[4])
+
+def formatter(node, cassOutput, appOutput, redisOutput, finalOutput):
+    # Takes in cassOutput, appOutput, redisOutput and checks if the service is down, appends results to finalOutput array
+    
+    # Cassandra Status
+    if "tcp" not in str(cassOutput):
+        finalOutput.append("{:<15}{:<10}\t DOWN\n".format("Cassandra", node))
+    else:
+        created, status = getCreatedAndStatus(cassOutput)[0], getCreatedAndStatus(cassOutput)[1]
+        finalOutput.append("{:<15}{:<10}\t UP \t{:<20}\t{:<20}\n".format("Cassandra", node, created, status))
+
+    # App (URL Shortener) Status
+    if "tcp" not in str(appOutput):
+        finalOutput.append("{:<15}{:<10}\t DOWN\n".format("URL Shortener", node))
+    else:
+        created, status = getCreatedAndStatus(appOutput)[0], getCreatedAndStatus(appOutput)[1]
+        finalOutput.append("{:<15}{:<10}\t UP \t{:<20}\t{:<20}\n".format("URL Shortener", node, created, status))
+
+    # Redis Status
+    if "tcp" not in str(redisOutput):
+        finalOutput.append("{:<15}{:<10}\t DOWN\n".format("Redis", node))
+    else:
+        created, status = getCreatedAndStatus(redisOutput)[0], getCreatedAndStatus(redisOutput)[1]
+        finalOutput.append("{:<15}{:<10}\t UP \t{:<20}\t{:<20}\n".format("Redis", node, created, status))
+
+nodes = []
+
+with open('nodes') as config_file:
+    for line in config_file:
+        nodes.append(line.rstrip())
+
+finalOutput = ["\nURL Shortener System Status\n\n"]
+n = 0
+for node in nodes:
+
+    finalOutput.append("Node {} Status\n".format(n))
+    
+    cassOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", node, "docker container ls | grep cassandra"], stdout=PIPE, stderr=PIPE)
+    appOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", node, "docker container ls | grep urlshortner"], stdout=PIPE, stderr=PIPE)
+    redisOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", node, "docker container ls | grep redis:latest"], stdout=PIPE, stderr=PIPE)
+
+    # Need to use .stdout
+    formatter(node, cassOutput.stdout, appOutput.stdout, redisOutput.stdout, finalOutput)
+
+    n += 1
+
+print(''.join(finalOutput))
+
+
