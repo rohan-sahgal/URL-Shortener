@@ -80,7 +80,7 @@ def request_handler_new_host():
 def request_handler_host_remove():
     old_host = request.args.get('host')
     with open('nodes', 'r') as f:
-    lines = f.readlines()
+        lines = f.readlines()
     with open('nodes', 'w') as f:
         for line in lines:
             if line.strip('\n') != old_host:
