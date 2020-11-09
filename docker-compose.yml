@@ -26,15 +26,13 @@ services:
          # limits:
           #  cpus: "0.1"
            # memory: 50M
-    ports:
-      - "5000:80"
     networks:
       - webnet
-  web:
+  monitor_status:
     # replace username/repo:tag with your name and image details
     image: georgema8/monitorstatus:v1
     deploy:
-      replicas: 3
+      replicas: 1
       restart_policy:
         condition: on-failure
         #resources:
@@ -42,7 +40,9 @@ services:
           #  cpus: "0.1"
             # memory: 50M
     ports:
-      - "6000:80"
+      - "5000:80"
+    volumes:
+      - "/home/student/repo_a2group77/exp:/usr/bin/exp"
     networks:
       - webnet
   visualizer:

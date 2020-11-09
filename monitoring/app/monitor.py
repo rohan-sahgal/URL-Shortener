@@ -51,10 +51,12 @@ def check_status():
 
         finalOutput.append("Node {} Status\n".format(n))
         
-        cassOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep cassandra"], stdout=PIPE, stderr=PIPE)
-        appOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep urlshortner"], stdout=PIPE, stderr=PIPE)
-        redisOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "docker container ls | grep redis:latest"], stdout=PIPE, stderr=PIPE)
-
+        cassOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "\'docker container ls | grep cassandra\'"], stdout=PIPE, stderr=PIPE)
+        print(cassOutput)
+        appOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "\'docker container ls | grep urlshortner\'"], stdout=PIPE, stderr=PIPE)
+        print(appOutput)
+        redisOutput = subprocess.run(["exp", "hhhhiotwwg", "ssh", "student@" + node, "\'docker container ls | grep redis:latest\'"], stdout=PIPE, stderr=PIPE)
+        print(redisOutput)
         # Need to use .stdout
         formatter(node, cassOutput.stdout, appOutput.stdout, redisOutput.stdout, finalOutput)
 
@@ -65,7 +67,7 @@ def check_status():
 
 @app.route('/', methods = ['GET'])
 def request_handler():
-    return check_status()
+    return '<p>' + check_status() + '</p>'
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
