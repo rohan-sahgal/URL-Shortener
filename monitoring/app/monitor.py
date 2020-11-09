@@ -4,6 +4,7 @@ import socket
 import sys
 import re
 from flask import Flask
+from flask import request
 
 app = Flask(__name__)
 
@@ -52,11 +53,8 @@ def check_status():
         finalOutput.append("Node {} Status\n".format(n))
         subprocess.run(["exp", "hhhhiotwwg", "ssh", "-o", "StrictHostKeyChecking=no", "student@" + node, "hostname"])
         cassOutput, _ = Popen(["sshpass", "-p", "hhhhiotwwg", "ssh", "-o", "StrictHostKeyChecking=no", "student@" + node, "docker container ls | grep cassandra"], stdout=PIPE, stderr=PIPE).communicate()
-        print(cassOutput, file=sys.stderr)
         appOutput, _ = Popen(["sshpass", "-p", "hhhhiotwwg", "ssh", "-o", "StrictHostKeyChecking=no", "student@" + node, "docker container ls | grep urlshortner"], stdout=PIPE, stderr=PIPE).communicate()
-        print(appOutput, file=sys.stderr)
         redisOutput, _ = Popen(["sshpass", "-p", "hhhhiotwwg", "ssh", "-o", "StrictHostKeyChecking=no", "student@" + node, "docker container ls | grep redis:latest"], stdout=PIPE, stderr=PIPE).communicate()
-        print(redisOutput, file=sys.stderr)
         # Need to use .stdout
         formatter(node, cassOutput.decode('utf-8'), appOutput.decode('utf-8'), redisOutput.decode('utf-8'), finalOutput)
 
