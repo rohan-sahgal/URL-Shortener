@@ -11,8 +11,10 @@ redis_server = Redis_Client('redis')
 cassandra_server = Cassandra_Client(['172.17.0.1'], 'urlshortner')
 
 
-@application.route('/', methods = ['PUT'])
-def request_handler_put():
+@application.route('/', methods = ['GET', 'PUT'])
+def request_handler_insert():
+  if request.method == 'GET':
+    abort(400)
   short_resource = request.args.get('short')
   long_resource = request.args.get('long')
   if not short_resource or not long_resource or len(request.args) != 2:
