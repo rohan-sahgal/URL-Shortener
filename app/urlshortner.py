@@ -17,12 +17,12 @@ def request_handler_insert():
   if request.method == 'GET':
     application.logger.error('ERROR 400: BAD REQUEST')
     abort(400)
-  application.logger.info('PUT - ' + str(request.args))
   short_resource = request.args.get('short')
   long_resource = request.args.get('long')
   if not short_resource or not long_resource or len(request.args) != 2:
     application.logger.error('ERROR 400: BAD REQUEST')
     abort(400)
+  application.logger.info('PUT - short: {short_resource} long: {long_resource}')
   long_resource_redis = redis_server.get('urls', short_resource)
   if long_resource_redis:
     redis_server.insert('urls', short_resource, long_resource)
@@ -39,7 +39,7 @@ def request_handler_insert():
 
 @application.route('/<short_resource>', methods = ['GET'])
 def request_handler_get(short_resource):
-  application.logger.info('GET - /' + short_resource)
+  application.logger.info(f'GET - /{short_resource}')
   long_resource = redis_server.get('urls', short_resource)
   if long_resource:
     application.logger.info('REDIS PROCESSED')
