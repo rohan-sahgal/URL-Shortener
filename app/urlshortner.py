@@ -17,6 +17,9 @@ def request_handler_put():
   long_resource = request.args.get('long')
   if not short_resource or not long_resource or len(request.args) != 2:
     abort(400)
+  long_resource_redis = redis_server.get('urls', short_resource)
+  if long_resource_redis:
+    redis_server.insert('urls', short_resource, long_resource)
   cassandra_server.insert(short_resource, long_resource)
   html = \
 '''
