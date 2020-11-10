@@ -5,7 +5,7 @@ from multiprocessing.pool import ThreadPool as Pool
 import csv
 import requests
 
-pool_size = 8
+pool_size = 4
 
 
 def worker(i):

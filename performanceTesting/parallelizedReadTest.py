@@ -11,7 +11,7 @@ pool_size = 4
 
 def worker(i):
     try:
-        request="http://127.0.0.1:8000/{}".format(i)
+        request="http://127.0.0.1:4000/{}".format(i)
         r = requests.get(request, allow_redirects=False)
 
     except Exception as e:
