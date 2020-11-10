@@ -36,7 +36,6 @@ start-stack() {
 }
 
 stop-stack() {
-    echo "TODO: Catch when the stack is not already up"
     docker stack rm $STACK_NAME
 }
 
@@ -88,7 +87,7 @@ add-cass() {
     exp "hhhhiotwwg" ssh student@$NEW_NODE "docker container rm cassandra-node"
     exp "hhhhiotwwg" ssh student@$NEW_NODE "$COMMAND"
 
-    echo "Successfully added $NEW_NODE to cassandra cluster"
+    echo "Successfully added $NEW_NODE to cassandra cluster\n"
 }
 
 remove-cass() {
@@ -104,38 +103,41 @@ add-node() {
     NEW_NODE=${arguments[1]}
     
     workerJoin=`docker swarm join-token worker | grep token`
-    exp "hhhhiotwwg" ssh $NEW_NODE $workerJoin
     
-    # Add node to `nodes` file
-    echo $NEW_NODE >> nodes
+    if grep -Fxq "$NEW_NODE" nodes
+    then
+        echo "Node already exists in swarm"
+    else
+        exp "hhhhiotwwg" ssh $NEW_NODE $workerJoin
+        # Add node to `nodes` file
+        echo $NEW_NODE >> nodes    
     
-    # Scale URL Shortener Service
-    let host_num=host_num+1
-    docker service scale URLShortenerService_web=$host_num
-    curl -X PUT "http://127.0.0.1:5000/?host=$NEW_NODE"
+        # Scale URL Shortener Service
+        let host_num=host_num+1
+        docker service scale URLShortenerService_web=$host_num
+        curl -X PUT "http://127.0.0.1:5000/?host=$NEW_NODE"
+    fi
 } 
 
 remove-node() {
     EXISTING_NODE=${arguments[1]}
+    IP_OF_NODE=${arguments[2]}
+    echo "Leaving swarm for node ${EXISTING_NODE}..."
     exp "hhhhiotwwg" ssh $EXISTING_NODE "docker swarm leave --force" || true
     
     # Remove node from 'nodes' file
-    sed -i '/EXISTING_NODE/d' nodes
+    sed -i "/$EXISTING_NODE/d" nodes
  
     let host_num=host_num-1
     docker service scale URLShortenerService_web=$host_num    
     curl -X DELETE "http://127.0.0.1:5000/?host=$EXISTING_NODE"
+    
+    sleep 7 
+    echo "\nCleaning up node from the swarm..."
+    line=`docker node ls | grep dh2010pc32_node`
+    docker node rm `python3 cleanupSwarm.py ${line}`
 }
 
-
-run-test() {
-    echo "Run python testing files..."
-}
-
-
-logs() {
-    docker container ls
-}
 
 print_done() {
     echo "Done."
@@ -155,23 +157,20 @@ case "$1" in
     stop-cass) stop-cass; print_done ;;
     start-swarm) stop-swarm; start-swarm; print_done ;; 
     leave-swarm) stop-swarm; print_done ;;
-    test)     run-test; print_done ;;
-    logs)     logs ;;
     *) echo "Usage:"
-       echo "  $0 start                            - Start app service"
-       echo "  $0 stop                             - Stop all running services"
-       echo "  $0 add-node {new_ip}                - Add the new_ip to the swarm and scale the URLShortener service"
-       echo "  $0 remove-node {existing_ip}        - Remove the exiting_ip from the swarm, redeploy stack, scale down services"
-       echo "  $0 add-cass {new_ip} {existing_ip}  - Adds the new_ip to a cassandra swarm of existing_ip"           
-       echo "  $0 remove-cass {ip_to_remove}       - Removes the passed in ip from the cassandra swarm"
-       echo "  $0 start-stack                      - Build and start docker stack"
-       echo "  $0 stop-stack                       - Stop docker stack"
-       echo "  $0 start-cass                       - Start cassandra on all nodes"
-       echo "  $0 stop-cass                        - Stop cassandra on all nodes"
-       echo "  $0 start-swarm                      - Start swarm on all nodes"
-       echo "  $0 leave-swarm                      - Leave swarm on all nodes"
-       echo "  $0 test                             - Run tests for both backend and frontend"
-       echo "  $0 logs                             - Tail app logs"
+       echo "  $0 start                                     - Start app service"
+       echo "  $0 stop                                      - Stop all running services"
+       echo "  $0 add-node {new_ip}                         - Add the new_ip to the swarm and scale the URLShortener service"
+       echo "  $0 remove-node {existing_ip} {host_name}     - Remove the exiting_ip from the swarm, redeploy stack, scale down services"
+       echo "  $0 add-cass {new_ip} {existing_ip}           - Adds the new_ip to a cassandra swarm of existing_ip"           
+       echo "  $0 remove-cass {ip_to_remove}                - Removes the passed in ip from the cassandra swarm"
+       echo "  $0 start-stack                               - Build and start docker stack"
+       echo "  $0 stop-stack                                - Stop docker stack"
+       echo "  $0 start-cass                                - Start cassandra on all nodes"
+       echo "  $0 reset-cass                                - Reset cassandra keyspace and table"
+       echo "  $0 stop-cass                                 - Stop cassandra on all nodes"
+       echo "  $0 start-swarm                               - Start swarm on all nodes"
+       echo "  $0 leave-swarm                               - Leave swarm on all nodes"
        exit 1
        ;;
 esac
