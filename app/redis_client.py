@@ -16,13 +16,13 @@ class Redis_Client:
       self._redis_server = None
       print('REDIS ERROR: Cannot connect to Redis. ' + str(e), file=sys.stderr)
 
-  def insert(self, key, value):
+  def insert(self, name, key, value):
     if self._redis_server != None:
-      self._redis_server.set(key, value, ex=10)
+      self._redis_server.hset(name, key, value)
     else:
       self.connect(self._host, self._db, self._socket_connect_timeout, self._socket_timeout)
       if self._redis_server != None:
-        self._redis_server.set(key, value, ex=10)
+        self._redis_server.hset(name, key, value)
   
   def insert_list(self, name, key, value):
     if self._redis_server != None:
@@ -32,13 +32,13 @@ class Redis_Client:
       if self._redis_server != None:
         self._redis_server.lpush(name, '{}:::{}'.format(key, value))
 
-  def get(self, key):
+  def get(self, name, key):
     if self._redis_server != None:
-      return self._redis_server.get(key)
+      return self._redis_server.hget(name, key)
     else:
       self.connect(self._host, self._db, self._socket_connect_timeout, self._socket_timeout)
       if self._redis_server != None:
-        return self._redis_server.get(key)
+        return self._redis_server.hget(name, key)
     return None
 
   def publish(self, channel, message):
