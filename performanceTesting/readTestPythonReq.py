@@ -3,41 +3,40 @@ import random, string, subprocess
 import time
 import urllib.request
 import csv
+import threading
 import requests
 
-from multiprocessing.pool import ThreadPool as Pool
-
-pool_size = 4
 
 def worker(i):
     try:
-        request="http://127.0.0.1:8000/{}".format(i)
-        r = requests.get(request, allow_redirects=False)
+        request="http://127.0.0.1:4000/{}".format(5)
+        r = requests.get(request)        
 
     except Exception as e:
         print(e)
 
 
-numReads = [10, 100, 1000, 4000]
+numReads = [10, 100, 1000]
+threads = []
+
 with open('./data/varying_reads.tsv', 'wt') as out_file:
 
     for i in range (len(numReads)):
-    
-        pool = Pool(pool_size)
         t0 = time.time()
+        t = threading.Thread(target=worker, args=(i,))
+        threads.append(t)
+        #t0 = time.time()
 
         for j in range(numReads[i]):
-            pool.apply_async(worker, (j,))
+            t.start()
 
 
-        pool.close()
-        pool.join()
 
         t1 = time.time()
 	
         tsv_writer = csv.writer(out_file, delimiter='\t')
         tsv_writer.writerow([t1-t0, numReads[i]])
-        print("{} reads: {}".format(numReads[i], t1-t0))
+        print(t1-t0)
 
 #also test for variable number of hosts
 #reverse reads and writes

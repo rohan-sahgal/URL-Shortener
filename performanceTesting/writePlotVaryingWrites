@@ -1,4 +1,4 @@
-#!/usr/bin/gnuplot --persist
+#!/usr/bin/gnuplot -p
 
 set title "Write Performance with Varying Number of Writes" font ",22"
 set xlabel "Number of Writes" font ",15"
@@ -8,5 +8,5 @@ set ytics font ",15"
 set key right top Left reverse spacing 3 font ",15"
 set grid
 set term png size 1200, 800
-set output "varyingWrites.png"
+set output "plots/varyingWrites.png"
 plot "data/varying_writes.tsv" using 1:xticlabels(2) title "w" with linespoints ps 4 pt 1

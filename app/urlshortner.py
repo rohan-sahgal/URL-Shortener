@@ -31,7 +31,7 @@ def request_handler_put():
 '''
   return html
 
-@application.route('/<short_resource>', methods = ['GET'])
+@application.route('/<short_resource>/', methods = ['GET'])
 def request_handler_get(short_resource):
   long_resource = redis_server.get('urls', short_resource)
   if long_resource:
