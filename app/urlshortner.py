@@ -30,12 +30,12 @@ def request_handler_put():
 
 @application.route('/<short_resource>', methods = ['GET'])
 def request_handler_get(short_resource):
-  long_resource = redis_server.get(short_resource)
+  long_resource = redis_server.get('urls', short_resource)
   if long_resource:
     return redirect(long_resource, code=307)
   long_resource = cassandra_server.get(short_resource)
   if long_resource:
-    redis_server.insert(short_resource, long_resource)
+    redis_server.insert('urls', short_resource, long_resource)
     return redirect(long_resource, code=307)
   abort(404)
 
