@@ -13,13 +13,15 @@ services:
            # memory: 50M
     ports:
       - "4000:80"
+      - "8000:8000"
     networks:
       - webnet
+    entrypoint: "gunicorn --workers=1 --threads=4 --bind 0.0.0.0:8000 wsgi"
   database_updater:
     # replace username/repo:tag with your name and image details
     image: georgema8/databaseupdater:v1
     deploy:
-      replicas: 3
+      replicas: 0
       restart_policy:
         condition: on-failure
         #resources:
@@ -45,18 +47,6 @@ services:
       - "/home/student/repo_a2group77/exp:/usr/bin/exp"
     networks:
       - webnet
-  visualizer:
-    image: dockersamples/visualizer:stable
-    ports:
-      - "8080:8080"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    deploy:
-      replicas: 1
-      placement:
-        constraints: [node.role == manager]
-    networks:
-      - webnet
   redis:
     image: redis
     ports:
@@ -64,6 +54,7 @@ services:
     volumes:
       # replace /home/docker/data with your data directory
       - "/home/student/repo_a2group77/volumes/redis/data:/data"
+      - "/home/student/repo_a2group77/redis.conf:/usr/local/etc/redis/redis.conf"
     deploy:
       replicas: 1
       placement:
@@ -71,17 +62,22 @@ services:
     command: redis-server --appendonly yes
     networks:
       - webnet
-  redis_pubsub:
-    image: redis
-    ports:
-      - "6379:6379"
+  redis-slave:
+    image: redis:latest
+    command: redis-server --slaveof redis 6379
+    depends_on:
+      - redis
     volumes:
       # replace /home/docker/data with your data directory
-      - "/home/student/repo_a2group77/volumes/redis_pubsub/data:/data"
+      - "/home/student/repo_a2group77/volumes/redis/data:/data"
+      - "/home/student/repo_a2group77/redis.conf:/usr/local/etc/redis/redis.conf"
     deploy:
-      replicas: 3
-    command: redis-server --appendonly yes
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+    command: redis-server --appendonly yes    
     networks:
       - webnet
 networks:
   webnet:
+
