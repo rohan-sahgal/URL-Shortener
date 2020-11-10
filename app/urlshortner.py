@@ -6,22 +6,22 @@ from flask import redirect
 from redis_client import Redis_Client
 from cassandra_client import Cassandra_Client
 
-app = Flask(__name__)
+application = Flask(__name__)
 redis_server = Redis_Client('redis')
-redis_server_pubsub = Redis_Client('redis_pubsub')
+#redis_server_pubsub = Redis_Client('redis_pubsub')
 cassandra_server = Cassandra_Client(['172.17.0.1'], 'urlshortner')
 
 
-@app.route('/', methods = ['PUT'])
+@application.route('/', methods = ['PUT'])
 def request_handler_put():
   short_resource = request.args.get('short')
   long_resource = request.args.get('long')
   if not short_resource or not long_resource or len(request.args) != 2:
     abort(400)
-  redis_server.insert('urls', short_resource, long_resource)
-  redis_server_pubsub.insert_list('urls_list', short_resource, long_resource)
-  if not redis_server_pubsub.publish('urls_channel', 'update'):
-    cassandra_server.insert(short_resource, long_resource)
+  #redis_server.insert('urls', short_resource, long_resource)
+  #redis_server_pubsub.insert_list('urls_list', short_resource, long_resource)
+  #if not redis_server_pubsub.publish('urls_channel', 'update'):
+  cassandra_server.insert(short_resource, long_resource)
   html = \
 '''
 <html>
@@ -32,7 +32,7 @@ def request_handler_put():
 '''
   return html
 
-@app.route('/<short_resource>', methods = ['GET'])
+@application.route('/<short_resource>', methods = ['GET'])
 def request_handler_get(short_resource):
   long_resource = redis_server.get('urls', short_resource)
   if long_resource:
@@ -45,4 +45,4 @@ def request_handler_get(short_resource):
 
 
 if __name__ == '__main__':
-  app.run(host='0.0.0.0', port=80)
+  application.run(host='0.0.0.0', port=80)
