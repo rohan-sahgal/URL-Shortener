@@ -22,7 +22,7 @@ def request_handler_insert():
   if not short_resource or not long_resource or len(request.args) != 2:
     application.logger.error('ERROR 400: BAD REQUEST')
     abort(400)
-  application.logger.info('PUT - short: {short_resource} long: {long_resource}')
+  application.logger.info(f'PUT - short: {short_resource} long: {long_resource}')
   long_resource_redis = redis_server.get('urls', short_resource)
   if long_resource_redis:
     redis_server.insert('urls', short_resource, long_resource)
