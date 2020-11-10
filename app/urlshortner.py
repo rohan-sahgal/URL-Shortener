@@ -8,7 +8,6 @@ from cassandra_client import Cassandra_Client
 
 application = Flask(__name__)
 redis_server = Redis_Client('redis')
-#redis_server_pubsub = Redis_Client('redis_pubsub')
 cassandra_server = Cassandra_Client(['172.17.0.1'], 'urlshortner')
 
 
@@ -18,9 +17,6 @@ def request_handler_put():
   long_resource = request.args.get('long')
   if not short_resource or not long_resource or len(request.args) != 2:
     abort(400)
-  #redis_server.insert('urls', short_resource, long_resource)
-  #redis_server_pubsub.insert_list('urls_list', short_resource, long_resource)
-  #if not redis_server_pubsub.publish('urls_channel', 'update'):
   cassandra_server.insert(short_resource, long_resource)
   html = \
 '''
@@ -34,12 +30,12 @@ def request_handler_put():
 
 @application.route('/<short_resource>', methods = ['GET'])
 def request_handler_get(short_resource):
-  long_resource = redis_server.get('urls', short_resource)
+  long_resource = redis_server.get(short_resource)
   if long_resource:
     return redirect(long_resource, code=307)
   long_resource = cassandra_server.get(short_resource)
   if long_resource:
-    redis_server.insert('urls', short_resource, long_resource)
+    redis_server.insert(short_resource, long_resource)
     return redirect(long_resource, code=307)
   abort(404)
 
