@@ -17,7 +17,7 @@ def request_handler_insert():
   if request.method == 'GET':
     application.logger.error('ERROR 400: BAD REQUEST')
     abort(400)
-  application.logger.info('PUT - ' + request.args)
+  application.logger.info('PUT - ' + str(request.args))
   short_resource = request.args.get('short')
   long_resource = request.args.get('long')
   if not short_resource or not long_resource or len(request.args) != 2:
