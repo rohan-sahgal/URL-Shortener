@@ -18,16 +18,11 @@ done < "$input"
 
 start-stack() {
     cp nodes monitoring/app/nodes
-
-    echo "Building images..."
-    cd databaseUpdater
-    docker build -t georgema8/databaseupdater:v1 .
-    cd ..
+    
     cd monitoring
     docker build -t georgema8/monitorstatus:v1 .
     cd ..
     docker build -t georgema8/urlshortner:v1 .
-    echo "Pushing images to cassandra..."
     docker push georgema8/databaseupdater:v1
     docker push georgema8/urlshortner:v1
     docker push georgema8/monitorstatus:v1
@@ -95,7 +90,8 @@ remove-cass() {
     exp "hhhhiotwwg" ssh student@$NODE_TO_REMOVE "docker container stop cassandra-node"
     exp "hhhhiotwwg" ssh student@$NODE_TO_REMOVE "docker container rm cassandra-node"
     line=`docker exec -it cassandra-node nodetool status | grep ${NODE_TO_REMOVE}`
-    docker exec -it cassandra-node nodetool removenode `python3 cleanupCassNode.py ${line}`
+    
+    docker exec -it cassandra-node nodetool removenode `python3 helpers/cleanupCassNode.py ${line}`
 }
 
 add-node() {
@@ -132,10 +128,10 @@ remove-node() {
     docker service scale URLShortenerService_web=$host_num    
     curl -X DELETE "http://127.0.0.1:5000/?host=$EXISTING_NODE"
     
-    sleep 7 
+    sleep 10 
     echo "\nCleaning up node from the swarm..."
     line=`docker node ls | grep dh2010pc32_node`
-    docker node rm `python3 cleanupSwarm.py ${line}`
+    docker node rm `python3 helpers/cleanupSwarm.py ${line}`
 }
 
 
