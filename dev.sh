@@ -130,7 +130,7 @@ remove-node() {
     
     sleep 10 
     echo "\nCleaning up node from the swarm..."
-    line=`docker node ls | grep dh2010pc32_node`
+    line=`docker node ls | grep ${IP_OF_NODE}`
     docker node rm `python3 helpers/cleanupSwarm.py ${line}`
 }
 
